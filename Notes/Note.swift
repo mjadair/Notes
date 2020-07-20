@@ -19,6 +19,19 @@ struct Note {
 class NoteManager {
     var database: OpaquePointer!
     
+    
+    // this instantiates the notemanager class as a SINGLETON
+    static let main = NoteManager()
+    
+    
+    // this privatises the Notemanage and prevents it being instantiated more than once. 
+    private init() {
+        
+    }
+    
+    
+    
+    
     func connect() {
         
         if database != nil {
