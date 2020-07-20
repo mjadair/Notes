@@ -25,7 +25,7 @@ class NoteViewController: UIViewController {
         super.viewWillDisappear(animated)
         
         note.contents = textView.text
-        NoteManager.main.save(note: note) 
+        NoteManager.main.save(note: note)
     }
     
 }

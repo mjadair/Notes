@@ -67,7 +67,7 @@ class NoteManager {
             
         }
             
-            if sqlite3_step(statement) != SQLITE_OK {
+            if sqlite3_step(statement) != SQLITE_DONE {
                    print("Could not insert note")
             }
             
