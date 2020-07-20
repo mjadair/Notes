@@ -80,6 +80,9 @@
                         <viewLayoutGuide key="safeArea" id="B1b-Vh-dUO"/>
                     </view>
                     <navigationItem key="navigationItem" id="sox-8S-hj7"/>
+                    <connections>
+                        <outlet property="textView" destination="z8E-Nn-zx0" id="RTo-1N-DAT"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lGb-C2-vn8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
