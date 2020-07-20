@@ -41,7 +41,7 @@ class NoteManager {
          
         do {
             
-        let databaseURL = try FileManager.default.url(for: .userDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("notes.sqlit3")
+        let databaseURL = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("notes.sqlit3")
             
             
            if sqlite3_open(databaseURL.path, &database) == SQLITE_OK {
@@ -77,13 +77,13 @@ class NoteManager {
         
         var statement: OpaquePointer!
 
-        if  sqlite3_prepare(database, "INSERT INTO notes (contents) VALUES ('New note')", -1, &statement, nil) == SQLITE_OK {
+        if  sqlite3_prepare_v2(database, "INSERT INTO notes (contents) VALUES ('New note')", -1, &statement, nil) != SQLITE_OK {
             print("could not create query")
             return -1
             
         }
             
-            if sqlite3_step(statement) == SQLITE_OK {
+            if sqlite3_step(statement) != SQLITE_OK {
                    print("Could not insert note")
             }
             
