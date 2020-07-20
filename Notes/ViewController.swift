@@ -18,6 +18,14 @@ class ViewController: UITableViewController {
     }
     
     
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        reload()
+    }
+    
+    
     // We need three methods implemented when intialising a table view controller:
     
     
