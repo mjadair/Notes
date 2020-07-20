@@ -56,15 +56,24 @@ class NoteManager {
         
     }
     
-    func create() {
+    func create() -> Int {
         connect()
         
         
         var statement: OpaquePointer!
 
-        sqlite3_prepare(database, "INSERT INTO notes (contents) VALUES ('New note')", -1, &statement, nil)
-    }
-    
-    
+        if  sqlite3_prepare(database, "INSERT INTO notes (contents) VALUES ('New note')", -1, &statement, nil) == SQLITE_OK {
+            print("could not create query")
+            return -1
+            
+        }
+            
+            if sqlite3_step(statement) == SQLITE_OK {
+                   print("Could not insert note")
+            }
+            
+            sqlite3_finalize(statement)
+            return Int(sqlite3_last_insert_rowid(database))
+        }
     
 }
