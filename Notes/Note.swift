@@ -31,49 +31,33 @@ class NoteManager {
     
     
     
-    
+    // this function is what establishes our connection to the database
     func connect() {
-        
         if database != nil {
             return
         }
         
-         
         do {
-            
         let databaseURL = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("notes.sqlit3")
-            
-            
            if sqlite3_open(databaseURL.path, &database) == SQLITE_OK {
                if  sqlite3_exec(database, "CREATE TABLE IF NOT EXISTS notes (contents TEXT)", nil, nil, nil) == SQLITE_OK {
-                    
-                    
                 }
-                
                else {
                 print ("could not create table")
             }
-            
-            
             }
-            
             else {
                 print("could not connect")
             }
-            
-            
     }
     catch let error {
         print("could not create database")
     }
-        
     }
-    
     
     // Create a new note function
     func create() -> Int {
         connect()
-        
         
         var statement: OpaquePointer!
 
@@ -115,6 +99,30 @@ class NoteManager {
         
         sqlite3_finalize(statement)
         return result
+        
+    }
+    
+    
+    // this is our function that allows us to save a single note to the database
+    func save(note: Note) {
+        
+        // calling connect establishes a connection to the database
+        connect()
+        
+        var statement: OpaquePointer!
+        
+        if sqlite3_prepare(database, "UPDATE notes SET contents = ? WHERE rowid = ?", -1, &statement, nil) != SQLITE_OK {
+            print("Error creating update statement")
+        }
+        
+        sqlite3_bind_text(statement, 1, NSString(string: note.contents).utf8String, -1, nil)
+        
+        sqlite3_bind_int(statement, 2, Int32(note.id))
+  
+        
+        if sqlite3_step(statement) != SQLITE_DONE {
+            print("Error running update")
+        }
         
     }
     
