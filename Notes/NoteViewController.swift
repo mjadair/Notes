@@ -24,7 +24,8 @@ class NoteViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        NoteManager.main.save(note: note)
+        note.contents = textView.text
+        NoteManager.main.save(note: note) 
     }
     
 }

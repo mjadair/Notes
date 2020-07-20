@@ -12,7 +12,7 @@ import SQLite3
 
 struct Note {
     let id: Int
-    let contents: String
+    var contents: String
 }
 
 

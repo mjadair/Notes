@@ -19,10 +19,10 @@ class ViewController: UITableViewController {
     
     
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        reload()
+        reload() 
     }
     
     
