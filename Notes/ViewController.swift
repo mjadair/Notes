@@ -58,6 +58,15 @@ class ViewController: UITableViewController {
     }
       
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "NoteSeque" {
+            if let destination = segue.destination as?
+                NoteViewController {
+                destination.note = notes[tableView.indexPathForSelectedRow!.row]
+            }
+        }
+    }
+    
     
 
 
