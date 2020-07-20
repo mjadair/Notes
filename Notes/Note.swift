@@ -56,6 +56,8 @@ class NoteManager {
         
     }
     
+    
+    // Create a new note function
     func create() -> Int {
         connect()
         
@@ -75,5 +77,32 @@ class NoteManager {
             sqlite3_finalize(statement)
             return Int(sqlite3_last_insert_rowid(database))
         }
+    
+    
+    // get all notes function
+    
+    func getAllNotes() -> [Note] {
+        connect()
+        
+        var result: [Note] = []
+        
+        
+        var statement: OpaquePointer!
+        
+        if sqlite3_prepare(database, "SELECT rowid, contents FROM notes", -1,  &statement, nil) != SQLITE_OK {
+            print("Error creating select!")
+            return []
+        }
+        
+        
+        while sqlite3_step(statement) == SQLITE_ROW {
+            result.append(Note(id: Int(sqlite3_column_int(statement, 0)), contents: String(cString: sqlite3_column_text(statement, 1))))
+        }
+        
+        
+        sqlite3_finalize(statement)
+        return result
+        
+    }
     
 }
