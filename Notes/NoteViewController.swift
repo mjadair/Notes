@@ -1,31 +1,20 @@
-//
-//  NoteViewController.swift
-//  Notes
-//
-//  Created by Michael Adair on 20/07/2020.
-//  Copyright © 2020 Michael Adair. All rights reserved.
-//
-
 import UIKit
 
-
-
 class NoteViewController: UIViewController {
-    var note: Note!
+    @IBOutlet var contentTextView: UITextView!
     
-    @IBOutlet var textView: UITextView!
+    var note: Note? = nil
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        textView.text = note.contents
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        contentTextView.text = note!.content
     }
-    
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        note.contents = textView.text
-        NoteManager.main.save(note: note)
+        note!.content = contentTextView.text
+        NoteManager.shared.saveNote(note: note!)
     }
-    
 }

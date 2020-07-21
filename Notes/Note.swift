@@ -1,129 +1,113 @@
-//
-//  Note.swift
-//  Notes
-//
-//  Created by Michael Adair on 20/07/2020.
-//  Copyright © 2020 Michael Adair. All rights reserved.
-//
-
 import Foundation
 import SQLite3
 
-
 struct Note {
-    let id: Int
-    var contents: String
+    var id: Int32
+    var content: String
 }
 
-
 class NoteManager {
-    var database: OpaquePointer!
+    var database: OpaquePointer?
     
+    static let shared = NoteManager()
     
-    // this instantiates the notemanager class as a SINGLETON
-    static let main = NoteManager()
-    
-    
-    // this privatises the Notemanage and prevents it being instantiated more than once. 
     private init() {
-        
     }
     
-    
-    
-    // this function is what establishes our connection to the database
     func connect() {
         if database != nil {
             return
         }
         
-        do {
-        let databaseURL = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("notes.sqlit3")
-           if sqlite3_open(databaseURL.path, &database) == SQLITE_OK {
-               if  sqlite3_exec(database, "CREATE TABLE IF NOT EXISTS notes (contents TEXT)", nil, nil, nil) == SQLITE_OK {
-                }
-               else {
-                print ("could not create table")
-            }
-            }
-            else {
-                print("could not connect")
-            }
-    }
-    catch let error {
-        print("could not create database")
-    }
+        let databaseURL = try! FileManager.default.url(
+            for: .documentDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: false
+        ).appendingPathComponent("notes.sqlite")
+        
+        if sqlite3_open(databaseURL.path, &database) != SQLITE_OK {
+            print("Error opening database")
+            return
+        }
+        
+        if sqlite3_exec(
+            database,
+            """
+            CREATE TABLE IF NOT EXISTS notes (
+                content TEXT
+            )
+            """,
+            nil,
+            nil,
+            nil
+        ) != SQLITE_OK {
+            print("Error creating table: \(String(cString: sqlite3_errmsg(database)!))")
+        }
     }
     
-    // Create a new note function
     func create() -> Int {
         connect()
         
-        var statement: OpaquePointer!
-
-        if  sqlite3_prepare_v2(database, "INSERT INTO notes (contents) VALUES ('New note')", -1, &statement, nil) != SQLITE_OK {
-            print("could not create query")
-            return -1
-            
-        }
-            
+        var statement: OpaquePointer? = nil
+        if sqlite3_prepare_v2(
+            database,
+            "INSERT INTO notes (content) VALUES ('Write a note!')",
+            -1,
+            &statement,
+            nil
+        ) == SQLITE_OK {
             if sqlite3_step(statement) != SQLITE_DONE {
-                   print("Could not insert note")
+                print("Error inserting note")
             }
-            
-            sqlite3_finalize(statement)
-            return Int(sqlite3_last_insert_rowid(database))
         }
+        else {
+            print("Error creating note insert statement")
+        }
+        
+        sqlite3_finalize(statement)
+        return Int(sqlite3_last_insert_rowid(database))
+    }
     
-    
-    // get all notes function
-    
-    func getAllNotes() -> [Note] {
+    func getNotes() -> [Note] {
         connect()
         
         var result: [Note] = []
-        
-        
-        var statement: OpaquePointer!
-        
-        if sqlite3_prepare(database, "SELECT rowid, contents FROM notes", -1,  &statement, nil) != SQLITE_OK {
-            print("Error creating select!")
-            return []
+        var statement: OpaquePointer? = nil
+        if sqlite3_prepare_v2(database, "SELECT rowid, content FROM notes", -1, &statement, nil) == SQLITE_OK {
+            while sqlite3_step(statement) == SQLITE_ROW {
+                result.append(Note(
+                    id: sqlite3_column_int(statement, 0),
+                    content: String(cString: sqlite3_column_text(statement, 1))
+                ))
+            }
         }
-        
-        
-        while sqlite3_step(statement) == SQLITE_ROW {
-            result.append(Note(id: Int(sqlite3_column_int(statement, 0)), contents: String(cString: sqlite3_column_text(statement, 1))))
-        }
-        
         
         sqlite3_finalize(statement)
         return result
-        
     }
     
-    
-    // this is our function that allows us to save a single note to the database
-    func save(note: Note) {
-        
-        // calling connect establishes a connection to the database
+    func saveNote(note: Note) {
         connect()
         
-        var statement: OpaquePointer!
-        
-        if sqlite3_prepare(database, "UPDATE notes SET contents = ? WHERE rowid = ?", -1, &statement, nil) != SQLITE_OK {
-            print("Error creating update statement")
+        var statement: OpaquePointer? = nil
+        if sqlite3_prepare_v2(
+            database,
+            "UPDATE notes SET content = ? WHERE rowid = ?",
+            -1,
+            &statement,
+            nil
+        ) == SQLITE_OK {
+            sqlite3_bind_text(statement, 1, NSString(string: note.content).utf8String, -1, nil)
+            sqlite3_bind_int(statement, 2, note.id)
+            if sqlite3_step(statement) != SQLITE_DONE {
+                print("Error saving note")
+            }
+        }
+        else {
+            print("Error creating note update statement")
         }
         
-        sqlite3_bind_text(statement, 1, NSString(string: note.contents).utf8String, -1, nil)
-        
-        sqlite3_bind_int(statement, 2, Int32(note.id))
-  
-        
-        if sqlite3_step(statement) != SQLITE_DONE {
-            print("Error running update")
-        }
-        
+        sqlite3_finalize(statement)
     }
-    
 }
