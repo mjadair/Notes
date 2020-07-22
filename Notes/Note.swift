@@ -1,12 +1,17 @@
 import Foundation
 import SQLite3
 
+
+// Our Note Model
 struct Note {
     var id: Int32
     var content: String
 }
 
+// Note Manager model
 class NoteManager {
+    
+    // our database is SQL so its type is OpaquePointer because it cannot be represented in Swift
     var database: OpaquePointer?
     
     static let shared = NoteManager()
@@ -14,6 +19,7 @@ class NoteManager {
     private init() {
     }
     
+    // this function connects to our database, and creates one if it doesn't already exist
     func connect() {
         if database != nil {
             return
@@ -46,6 +52,8 @@ class NoteManager {
         }
     }
     
+    
+    // This method creates a new note, it has the  default content of 'Write a new note!'
     func create() -> Int {
         connect()
         
@@ -69,6 +77,8 @@ class NoteManager {
         return Int(sqlite3_last_insert_rowid(database))
     }
     
+    
+    // this method gets and returns our single note. The result is an empty array and the returned values from the sql query are appended to it.
     func getNotes() -> [Note] {
         connect()
         
@@ -87,6 +97,8 @@ class NoteManager {
         return result
     }
     
+    
+    // This function saves our updated note to the existing record. 
     func saveNote(note: Note) {
         connect()
         
