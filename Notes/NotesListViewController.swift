@@ -48,6 +48,19 @@ class NotesListViewController: UITableViewController {
     }
     
     
+    // this function allows us to delete a note by swiping left on the note cell
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let deleted = NoteManager.shared.deleteNote(id: notes[indexPath.row].id)
+            if deleted {
+                notes.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .bottom)
+            }
+        }
+    }
+
+    
+    
     // when the note is selected, it prepares the segue, moving us across to the NoteViewController and setting the destination to be at the index of the selected note.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "NoteSegue",
